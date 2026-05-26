@@ -8,15 +8,20 @@
 
 config_version=5
 
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
 [application]
 
 config/name="Speech Voip Demo"
 run/main_scene="res://vsk_speech/scenes/entry_point.tscn"
-config/features=PackedStringArray("4.5")
+config/features=PackedStringArray("4.7")
 config/icon="res://icon.png"
 
 [audio]
 
+buses/default_bus_layout="uid://bdisip03skrxl"
 driver/enable_input=true
 driver/mix_rate=48000
 enable_audio_input=true

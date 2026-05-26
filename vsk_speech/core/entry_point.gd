@@ -126,7 +126,7 @@ func get_ticks_since_recording_started() -> int:
 
 
 func add_player_audio(p_id) -> void:
-	var audio_stream_player : AudioStreamPlayer = AudioStreamPlayer.new()
+	var audio_stream_player : AudioStreamPlayer3D = AudioStreamPlayer3D.new()
 	audio_players[p_id] = audio_stream_player
 	audio_stream_player.set_name(str(p_id))
 	add_child(audio_stream_player, true)
@@ -134,10 +134,10 @@ func add_player_audio(p_id) -> void:
 	godot_speech.add_player_audio(p_id, audio_stream_player)
 
 func remove_player_audio(p_id) -> void:
-	if not godot_speech.get_property_list().has("voice_controller"):
+	if not audio_players.has(p_id):
 		return
-	godot_speech.voice_controller.remove_player_audio(p_id)
-	var audio_stream_player : AudioStreamPlayer = audio_players[p_id]
+	godot_speech.remove_player_audio(p_id)
+	var audio_stream_player : AudioStreamPlayer3D = audio_players[p_id]
 	audio_stream_player.queue_free()
 	audio_players.erase(p_id)
 
@@ -194,14 +194,15 @@ func get_voice_buffers() -> Array:
 
 
 func _process(p_delta) -> void:
-	if not voice_recording_started:
+	if voice_recording_started:
+		process_input_audio(p_delta)
+		var index : int = get_current_voice_id()
+		var buffers: Array = get_voice_buffers()
+		for buffer in buffers:
+			network_layer.send_audio_packet(index, buffer["byte_array"].slice(0, buffer["buffer_size"]))
+			index += 1
+	if not godot_speech:
 		return
-	process_input_audio(p_delta)
-	var index : int = get_current_voice_id()
-	var buffers: Array = get_voice_buffers()
-	for buffer in buffers:
-		network_layer.send_audio_packet(index, buffer["byte_array"].slice(0, buffer["buffer_size"]))
-		index += 1
 	var speech_stat_dict : Dictionary = godot_speech.get_stats()
 	var stat_dict : Dictionary = godot_speech.get_playback_stats(speech_stat_dict)
 

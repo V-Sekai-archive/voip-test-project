@@ -79,3 +79,44 @@ func _on_mic_mute_pressed(toggled_on: bool) -> void:
 	var mic_bus_idx = AudioServer.get_bus_index("Mic")
 	for i in range(AudioServer.get_bus_effect_count(mic_bus_idx)):
 		AudioServer.set_bus_effect_enabled(mic_bus_idx, i, not toggled_on)
+
+
+func _on_input_device_selected(idx: int) -> void:
+	var device_name: String = get_node("connect/input_device").get_item_text(idx)
+	AudioServer.input_device = device_name
+	print("Input device: %s" % device_name)
+
+
+func _on_output_device_selected(idx: int) -> void:
+	var device_name: String = get_node("connect/output_device").get_item_text(idx)
+	AudioServer.output_device = device_name
+	print("Output device: %s" % device_name)
+
+
+func _populate_devices() -> void:
+	var input_btn: OptionButton = get_node("connect/input_device")
+	var output_btn: OptionButton = get_node("connect/output_device")
+	input_btn.clear()
+	output_btn.clear()
+
+	for device in AudioServer.get_input_device_list():
+		input_btn.add_item(device)
+	if input_btn.item_count > 0:
+		var current := AudioServer.input_device
+		for i in range(input_btn.item_count):
+			if input_btn.get_item_text(i) == current:
+				input_btn.select(i)
+				break
+
+	for device in AudioServer.get_output_device_list():
+		output_btn.add_item(device)
+	if output_btn.item_count > 0:
+		var current := AudioServer.output_device
+		for i in range(output_btn.item_count):
+			if output_btn.get_item_text(i) == current:
+				output_btn.select(i)
+				break
+
+
+func _ready() -> void:
+	_populate_devices()
